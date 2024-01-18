@@ -1,5 +1,6 @@
 _base_ = '../common/ms-poly-90k_coco-instance.py'
 
+
 load_from = "checkpoints/condinst_r50_fpn_ms-poly-90k_coco_instance_20221129_125223-4c186406.pth"
 # model settings
 model = dict(
@@ -32,7 +33,7 @@ model = dict(
     bbox_head=dict(
         type='CondInstBboxHead',
         num_params=169,
-        num_classes=4,
+        num_classes=80,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,

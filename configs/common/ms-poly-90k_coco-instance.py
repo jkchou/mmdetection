@@ -2,7 +2,7 @@ _base_ = '../_base_/default_runtime.py'
 
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = 'data/qingying/'
+data_root = 'data/coco/'
 # Example to use different file client
 # Method 1: simply set the data root and let the file I/O module
 # automatically infer from prefix (not support LMDB and Memcache yet)
@@ -65,8 +65,8 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file='train/train.json',
-        data_prefix=dict(img='train/images'),
+        ann_file='annotations/instances_train2017.json',
+        data_prefix=dict(img='train2017/'),
         filter_cfg=dict(filter_empty_gt=True, min_size=32),
         pipeline=train_pipeline,
         backend_args=backend_args))
@@ -80,8 +80,8 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file='val/val.json',
-        data_prefix=dict(img='val/images'),
+        ann_file='annotations/instances_val2017.json',
+        data_prefix=dict(img='val2017/'),
         test_mode=True,
         pipeline=test_pipeline,
         backend_args=backend_args))
@@ -89,16 +89,16 @@ test_dataloader = val_dataloader
 
 val_evaluator = dict(
     type='CocoMetric',
-    ann_file=data_root + 'val/val.json',
+    ann_file=data_root + 'annotations/instances_val2017.json',
     metric=['bbox', 'segm'],
     format_only=False,
     backend_args=backend_args)
 test_evaluator = val_evaluator
 
 # training schedule for 90k
-max_iter = 2400
+max_iter = 90000
 train_cfg = dict(
-    type='IterBasedTrainLoop', max_iters=max_iter, val_interval=200)
+    type='IterBasedTrainLoop', max_iters=max_iter, val_interval=10000)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
 
@@ -112,7 +112,7 @@ param_scheduler = [
         begin=0,
         end=max_iter,
         by_epoch=False,
-        milestones=[1600, 2100],
+        milestones=[60000, 80000],
         gamma=0.1)
 ]
 
@@ -126,5 +126,5 @@ optim_wrapper = dict(
 #   - `base_batch_size` = (8 GPUs) x (2 samples per GPU).
 auto_scale_lr = dict(enable=False, base_batch_size=16)
 
-default_hooks = dict(checkpoint=dict(by_epoch=False, interval=1000))
+default_hooks = dict(checkpoint=dict(by_epoch=False, interval=10000))
 log_processor = dict(by_epoch=False)
